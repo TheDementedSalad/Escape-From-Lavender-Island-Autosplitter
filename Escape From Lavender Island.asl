@@ -1,6 +1,6 @@
-// Escape from Lavender Island Autosplitter and Load Remover Version 1.0.0 - Sept 14, 2023
+// Escape from Lavender Island Autosplitter and Load Remover Version 1.0.1 - Sept 14, 2023
 // Autosplitter by TheDementedSalad
-// Load Remover by SabulineHorizon
+// Load Remover and Reset by SabulineHorizon
 
 
 state("LavenderIsland-Win64-Shipping")
@@ -8,7 +8,7 @@ state("LavenderIsland-Win64-Shipping")
 	string88 Start		:	0x55499F0, 0x8, 0x60, 0x50, 0x0, 0x78, 0x258, 0x10, 0x10, 0x0;
 	string88 Objective	:	0x553A510, 0x40, 0x18, 0x238, 0x238, 0x350, 0x328, 0x128, 0x28, 0x0;
 	string42 Map		:	0x5B042F0, 0x180, 0x30, 0xF8, 0x0; //Local filepath to current map
-	int Loading			:	0x5B009D8, 0xA88, 0x1B0, 0x90; //981668864 yes, other no
+	int Loading		:	0x5B009D8, 0xA88, 0x1B0, 0x90; //981668864 yes, other no
 	int FrameCount		:	0x5A54BC4; //I think it's a frame count, not really certain
 }
 
@@ -19,7 +19,7 @@ init
 
 startup
 {
-	vars.ASLVersion = "ASL Version 1.0.0 - Sept 14 2023";
+	vars.ASLVersion = "ASL Version 1.0.1 - Sept 14 2023";
 	
 	vars.completedSplits = new List<string>();
 	
