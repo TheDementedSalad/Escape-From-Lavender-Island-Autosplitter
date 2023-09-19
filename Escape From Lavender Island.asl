@@ -1,4 +1,4 @@
-// Escape from Lavender Island Autosplitter and Load Remover Version 1.0.1 - Sept 14, 2023
+// Escape from Lavender Island Autosplitter and Load Remover Version 1.0.2 - Sept 19, 2023
 // Autosplitter by TheDementedSalad
 // Load Remover and Reset by SabulineHorizon
 
@@ -19,7 +19,7 @@ init
 
 startup
 {
-	vars.ASLVersion = "ASL Version 1.0.1 - Sept 14 2023";
+	vars.ASLVersion = "ASL Version 1.0.2 - Sept 19 2023";
 	
 	vars.completedSplits = new List<string>();
 	
@@ -61,6 +61,8 @@ startup
 
 	settings.Add("End", true, "Final split (always active)");
 	
+	settings.Add("Alt", false, "Alternate Splits");
+	settings.Add("Zoom in with RB or LB on your conroller or L", false, "Get first mask (alternate split)", "Alt");
 	
 }
 
