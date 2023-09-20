@@ -14,7 +14,15 @@ state("LavenderIsland-Win64-Shipping")
 
 init
 {
-
+	switch (modules.First().ModuleMemorySize)
+	{
+		case (100638720):
+			version = "SteamRelease";
+			break;
+		default:
+			print("Unknown version detected");
+        return false;
+	}
 }
 
 startup
