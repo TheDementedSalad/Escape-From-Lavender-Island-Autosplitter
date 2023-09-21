@@ -1,4 +1,4 @@
-// Escape from Lavender Island Autosplitter and Load Remover Version 1.0.2 - Sept 19, 2023
+// Escape from Lavender Island Autosplitter and Load Remover Version 1.0.3 - Sept 21, 2023
 // Autosplitter by TheDementedSalad
 // Load Remover and Reset by SabulineHorizon
 
@@ -8,6 +8,7 @@ state("LavenderIsland-Win64-Shipping")
 	string88 Start		:	0x55499F0, 0x8, 0x60, 0x50, 0x0, 0x78, 0x258, 0x10, 0x10, 0x0;
 	string88 Objective	:	0x553A510, 0x40, 0x18, 0x238, 0x238, 0x350, 0x328, 0x128, 0x28, 0x0;
 	string42 Map		:	0x5B042F0, 0x180, 0x30, 0xF8, 0x0; //Local filepath to current map
+	int PreLoading		:	0x556E990, 0xD0; //0 yes, other no
 	int Loading		:	0x5B009D8, 0xA88, 0x1B0, 0x90; //981668864 yes, other no
 	int FrameCount		:	0x5A54BC4; //I think it's a frame count, not really certain
 }
@@ -27,7 +28,7 @@ init
 
 startup
 {
-	vars.ASLVersion = "ASL Version 1.0.2 - Sept 19 2023";
+	vars.ASLVersion = "ASL Version 1.0.3 - Sept 21 2023";
 	
 	vars.completedSplits = new List<string>();
 	
@@ -72,6 +73,9 @@ startup
 	settings.Add("Alt", false, "Alternate Splits");
 	settings.Add("Zoom in with RB or LB on your conroller or L", false, "Get first mask (alternate split)", "Alt");
 	
+	settings.Add("Experimental", false, "Experimental");
+	settings.Add("PreLoads", false, "Experimental Load Remover (for testing only)", "Experimental");
+	
 }
 
 update
@@ -105,7 +109,7 @@ split
 
 isLoading
 {
-	return current.Loading == 981668864;
+	return current.Loading == 981668864 || (current.PreLoading == 0 && settings["PreLoads"]);
 }
 
 reset
