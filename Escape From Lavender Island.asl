@@ -1,4 +1,4 @@
-// Escape from Lavender Island Autosplitter and Load Remover Version 1.0.3 - Sept 21, 2023
+// Escape from Lavender Island Autosplitter and Load Remover Version 1.0.4 - Sept 21, 2023
 // Autosplitter by TheDementedSalad
 // Load Remover and Reset by SabulineHorizon
 
@@ -8,7 +8,7 @@ state("LavenderIsland-Win64-Shipping")
 	string88 Start		:	0x55499F0, 0x8, 0x60, 0x50, 0x0, 0x78, 0x258, 0x10, 0x10, 0x0;
 	string88 Objective	:	0x553A510, 0x40, 0x18, 0x238, 0x238, 0x350, 0x328, 0x128, 0x28, 0x0;
 	string42 Map		:	0x5B042F0, 0x180, 0x30, 0xF8, 0x0; //Local filepath to current map
-	int PreLoading		:	0x556E990, 0xD0; //0 yes, other no
+	int PreLoading		:	0x556E990, 0xB0; //0 yes, other no
 	int Loading		:	0x5B009D8, 0xA88, 0x1B0, 0x90; //981668864 yes, other no
 	int FrameCount		:	0x5A54BC4; //I think it's a frame count, not really certain
 }
@@ -28,7 +28,7 @@ init
 
 startup
 {
-	vars.ASLVersion = "ASL Version 1.0.3 - Sept 21 2023";
+	vars.ASLVersion = "ASL Version 1.0.4 - Sept 21 2023";
 	
 	vars.completedSplits = new List<string>();
 	
@@ -74,7 +74,7 @@ startup
 	settings.Add("Zoom in with RB or LB on your conroller or L", false, "Get first mask (alternate split)", "Alt");
 	
 	settings.Add("Experimental", false, "Experimental");
-	settings.Add("PreLoads", false, "Experimental Load Remover (for testing only)", "Experimental");
+	settings.Add("PreLoads", false, "Experimental Load Remover v2 (for testing only)", "Experimental");
 	
 }
 
@@ -96,15 +96,15 @@ start
 
 split
 {
-	if(settings["" + current.Objective] && !vars.completedSplits.Contains(current.Objective) && current.Objective != old.Objective){
-			vars.completedSplits.Add(current.Objective);
-			return true;
-		}
+	if(current.Objective != null && settings["" + current.Objective] && !vars.completedSplits.Contains(current.Objective) && current.Objective != old.Objective){
+		vars.completedSplits.Add(current.Objective);
+		return true;
+	}
 		
 	if(current.Objective != old.Objective && old.Objective == "Go see the credits and go back to Lavender C" && !vars.completedSplits.Contains(old.Objective)){
-			vars.completedSplits.Add(old.Objective);
-			return true;
-		}
+		vars.completedSplits.Add(old.Objective);
+		return true;
+	}
 }
 
 isLoading
