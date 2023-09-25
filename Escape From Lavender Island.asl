@@ -1,4 +1,4 @@
-// Escape from Lavender Island Autosplitter and Load Remover Version 1.1.0 - Sept 24, 2023
+// Escape from Lavender Island Autosplitter and Load Remover Version 1.1.1 - Sept 24, 2023
 // Autosplitter by TheDementedSalad
 // Load Remover and Reset by SabulineHorizon
 // Some memory pointers found with help from cactus
@@ -13,6 +13,9 @@ state("LavenderIsland-Win64-Shipping", "24/9/23")
 	int IntroLoaded		:	0x5B05330, 0x180, 0x38, 0x0, 0x30, 0x5C8, 0x0; //Used to tell the difference between 0 and null for AdvanceIntro
 	int AdvanceIntro		:	0x5B05330, 0x180, 0x38, 0x0, 0x30, 0x588; //Used to detect false positives in intro and end
 	float PlayerZ	:	0x55DDDF0, 0x8, 0x38, 0x0, 0xC0, 0x1D8; //Used to detect false positives in sleep with bone leg cutscene
+	
+	int PreLoading	: 0x556FA20;
+	byte LoadingScreenOn	: 0x5B05330, 0x120, 0x228, 0x3B0; //Only works when loading screen is on, doesn't remove loading before the screen
 }
 
 init
@@ -30,7 +33,7 @@ init
 
 startup
 {
-	vars.ASLVersion = "ASL Version 1.1.0 - Sept 24 2023";
+	vars.ASLVersion = "ASL Version 1.1.1 - Sept 24 2023";
 	
 	vars.completedSplits = new List<string>();
 	vars.canLoad = false;
@@ -80,6 +83,9 @@ startup
 	settings.Add("Take the clean clothes back to the scientist", false, "Finish laundry", "Alt");
 	settings.Add("Practice using your scientist mask. Explore ", false, "Get second mask", "Alt");
 	
+	settings.Add("ExpLoads", false, "Experimental Load Remover (for testing only)");
+		settings.SetToolTip("ExpLoads", "This is an experimental load remover that replaces the current one when this option is checked");
+	
 	settings.Add("Luck", false, "Luck");
 		settings.SetToolTip("Luck", "This setting literally doesn't do anything. Feel free to check it if you think it might bring good luck");
 }
@@ -94,13 +100,16 @@ update
 		vars.completedSplits.Clear();
 	}
 	
-	// if player doesn't exist, loading is allowed
-	if (current.PlayerZ == 0)
-		vars.canLoad = true;
-	
-	// if loading ended, disable flag
-	if (old.LevelLoaded != 1 && current.LevelLoaded == 1)
-		vars.canLoad = false;
+	if(!settings["ExpLoads"])
+	{
+		// if player doesn't exist, loading is allowed
+		if (current.PlayerZ == 0)
+			vars.canLoad = true;
+		
+		// if loading ended, disable flag
+		if (old.LevelLoaded != 1 && current.LevelLoaded == 1)
+			vars.canLoad = false;
+	}
 }
 
 start
@@ -123,10 +132,20 @@ split
 
 isLoading
 {
-	return (current.LevelLoaded != 1) &&
-		!(current.AdvanceIntro >= 0 && current.AdvanceIntro < 7 && current.IntroLoaded != 0) &&
-		(vars.canLoad == true) &&
-		(current.Map != "/Game/Maps/MainMenu");
+	if(settings["ExpLoads"])
+	{
+		return (current.LoadingScreenOn == 1) ||
+				(current.PreLoading == 35032) ||
+				(current.PreLoading == 67800) ||
+				(current.PreLoading == 32855);
+	}
+	else
+	{
+		return (current.LevelLoaded != 1) &&
+			!(current.AdvanceIntro >= 0 && current.AdvanceIntro < 7 && current.IntroLoaded != 0) &&
+			(vars.canLoad == true) &&
+			(current.Map != "/Game/Maps/MainMenu");
+	}
 }
 
 reset
