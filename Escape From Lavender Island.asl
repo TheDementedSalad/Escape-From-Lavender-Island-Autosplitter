@@ -1,17 +1,21 @@
-// Escape from Lavender Island Autosplitter and Load Remover Version 1.2.2 - Sept 27, 2023
+// Escape from Lavender Island Autosplitter and Load Remover Version 1.2.3 - Sept 28, 2023
 // Autosplitter by TheDementedSalad
 // Load Remover and Reset by SabulineHorizon
 // Some memory pointers found with help from cactus
 
-state("LavenderIsland-Win64-Shipping", "27/9/23")
+state("LavenderIsland-Win64-Shipping", "28/9/23")
 {
     string88 Start        :    0x554AA40, 0x8, 0x60, 0x50, 0x0, 0x78, 0x258, 0x10, 0x10, 0x0;
     string88 Objective    :    0x5B05330, 0x180, 0x38, 0x0, 0x30, 0x250, 0x630, 0x8, 0x0, 0x0;
     string42 Map        :    0x5B05330, 0x180, 0x30, 0xF8, 0x0; //Local filepath to current map
     int FrameCount        :    0x5A55C04;
+	byte LevelLoaded		:	0x5B05330, 0x180, 0x38, 0x0, 0x30, 0x250, 0x824; //False positives in intro, sleep cutscene, end, and main menu
+	int IntroLoaded		:	0x5B05330, 0x180, 0x38, 0x0, 0x30, 0x5C8, 0x0; //Used to tell the difference between 0 and null for AdvanceIntro
+	int AdvanceIntro		:	0x5B05330, 0x180, 0x38, 0x0, 0x30, 0x588; //Used to detect false positives in intro and end
+	float PlayerZ	:	0x55DDDF0, 0x8, 0x38, 0x0, 0xC0, 0x1D8; //Used to detect false positives in sleep with bone leg cutscene
 	
 	byte PreLoading	: 0x5AB5C30, 0x0, 0x18, 0x48, 0x3B1; //0 not preloading, 1 preloading - this is an updated address that hasn't been tried yet, seems extremely reliable
-	byte LoadingScreenOn	: 0x5B05330, 0x120, 0x228, 0x3B0; //Only works during times when loading screen is visible
+	// byte LoadingScreenOn	: 0x5B05330, 0x120, 0x228, 0x3B0; //Only works when loading screen is on, doesn't remove loading before the screen
 }
 
 init
@@ -29,7 +33,7 @@ init
 
 startup
 {
-	vars.ASLVersion = "ASL Version 1.2.2 - Sept 27 2023";
+	vars.ASLVersion = "ASL Version 1.2.3 - Sept 28 2023";
 	
 	vars.completedSplits = new List<string>();
 	vars.canLoad = false;
@@ -92,6 +96,14 @@ update
 	{
 		vars.completedSplits.Clear();
 	}
+	
+	// if player doesn't exist, loading is allowed
+	if (current.PlayerZ == 0)
+		vars.canLoad = true;
+	
+	// if loading ended, disable flag
+	if (old.LevelLoaded != 1 && current.LevelLoaded == 1)
+		vars.canLoad = false;
 }
 
 start
@@ -114,7 +126,11 @@ split
 
 isLoading
 {
-	return (current.LoadingScreenOn == 1) || (current.PreLoading == 1);
+	return ((current.PreLoading == 1) ||
+			((current.LevelLoaded != 1) &&
+			!(current.AdvanceIntro >= 0 && current.AdvanceIntro < 7 && current.IntroLoaded != 0) &&
+			(vars.canLoad == true) &&
+			(current.Map != "/Game/Maps/MainMenu")));
 }
 
 reset
