@@ -1,4 +1,4 @@
-// Escape from Lavender Island Autosplitter and Load Remover Version 1.2.3 - Sept 28, 2023
+// Escape from Lavender Island Autosplitter and Load Remover Version 1.2.4 - Sept 28, 2023
 // Autosplitter by TheDementedSalad
 // Load Remover and Reset by SabulineHorizon
 // Some memory pointers found with help from cactus
@@ -9,13 +9,14 @@ state("LavenderIsland-Win64-Shipping", "28/9/23")
     string88 Objective    :    0x5B05330, 0x180, 0x38, 0x0, 0x30, 0x250, 0x630, 0x8, 0x0, 0x0;
     string42 Map        :    0x5B05330, 0x180, 0x30, 0xF8, 0x0; //Local filepath to current map
     int FrameCount        :    0x5A55C04;
+	
 	byte LevelLoaded		:	0x5B05330, 0x180, 0x38, 0x0, 0x30, 0x250, 0x824; //False positives in intro, sleep cutscene, end, and main menu
 	int IntroLoaded		:	0x5B05330, 0x180, 0x38, 0x0, 0x30, 0x5C8, 0x0; //Used to tell the difference between 0 and null for AdvanceIntro
 	int AdvanceIntro		:	0x5B05330, 0x180, 0x38, 0x0, 0x30, 0x588; //Used to detect false positives in intro and end
 	float PlayerZ	:	0x55DDDF0, 0x8, 0x38, 0x0, 0xC0, 0x1D8; //Used to detect false positives in sleep with bone leg cutscene
 	
 	byte PreLoading	: 0x5AB5C30, 0x0, 0x18, 0x48, 0x3B1; //0 not preloading, 1 preloading - this is an updated address that hasn't been tried yet, seems extremely reliable
-	// byte LoadingScreenOn	: 0x5B05330, 0x120, 0x228, 0x3B0; //Only works when loading screen is on, doesn't remove loading before the screen
+	int LoadingScreen	: 0x5ADDCF0, 0x90, 0x1B0, 0x118; //981668864 yes, other no - Only works during times when loading screen is visible
 }
 
 init
@@ -33,7 +34,7 @@ init
 
 startup
 {
-	vars.ASLVersion = "ASL Version 1.2.3 - Sept 28 2023";
+	vars.ASLVersion = "ASL Version 1.2.4 - Sept 28 2023";
 	
 	vars.completedSplits = new List<string>();
 	vars.canLoad = false;
@@ -127,6 +128,7 @@ split
 isLoading
 {
 	return ((current.PreLoading == 1) ||
+			(current.LoadingScreen == 981668864) ||
 			((current.LevelLoaded != 1) &&
 			!(current.AdvanceIntro >= 0 && current.AdvanceIntro < 7 && current.IntroLoaded != 0) &&
 			(vars.canLoad == true) &&
