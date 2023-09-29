@@ -1,7 +1,7 @@
-// Escape from Lavender Island Autosplitter and Load Remover Version 1.2.4 - Sept 28, 2023
+// Escape from Lavender Island Autosplitter and Load Remover Version 1.2.5 - Sept 28, 2023
 // Autosplitter by TheDementedSalad
 // Load Remover and Reset by SabulineHorizon
-// Some memory pointers found with help from cactus
+// Some memory pointers found with help from cactus and bill_play3
 
 state("LavenderIsland-Win64-Shipping", "28/9/23")
 {
@@ -34,10 +34,11 @@ init
 
 startup
 {
-	vars.ASLVersion = "ASL Version 1.2.4 - Sept 28 2023";
+	vars.ASLVersion = "ASL Version 1.2.5 - Sept 28 2023";
 	
 	vars.completedSplits = new List<string>();
 	vars.canLoad = false;
+	vars.colonyFlag = 0;
 	
 	if (timer.CurrentTimingMethod == TimingMethod.RealTime){ // stolen from dude simulator 3, basically asks the runner to set their livesplit to game time
 		var timingMessage = MessageBox.Show (
@@ -71,6 +72,8 @@ startup
 	settings.CurrentDefaultParent = null;
 
 	settings.Add("End", true, "Final split (always active)");
+	settings.Add("ColonyPause", false, "Extra Terrestrial Colony Pause");
+		settings.SetToolTip("ColonyPause", "Pause when entering the Extra Terrestrial Colony, unpauses after reload");
 	
 	settings.Add("Alt", false, "Obsolete Splits");
 		settings.SetToolTip("Alt", "Obsolete splits that were only part of the old route");
@@ -88,23 +91,35 @@ startup
 		settings.SetToolTip("Luck", "This setting literally doesn't do anything. Feel free to check it if you think it might bring good luck");
 }
 
+onStart
+{
+	vars.completedSplits.Clear();
+	vars.colonyFlag = 0;
+}
+
 update
 {
 	//Uncomment debug information in the event of an update.
 	//print(modules.First().ModuleMemorySize.ToString());
 	
-	if(timer.CurrentPhase == TimerPhase.NotRunning)
-	{
-		vars.completedSplits.Clear();
-	}
+	// if(timer.CurrentPhase == TimerPhase.NotRunning)
+		// vars.completedSplits.Clear();
 	
-	// if player doesn't exist, loading is allowed
+	//if player doesn't exist, loading is allowed
 	if (current.PlayerZ == 0)
 		vars.canLoad = true;
-	
-	// if loading ended, disable flag
+	//if loading ended, disable flag
 	if (old.LevelLoaded != 1 && current.LevelLoaded == 1)
 		vars.canLoad = false;
+	
+	//pause when entering Extra Terrestrial Colony
+	if(settings["ColonyPause"] && vars.colonyFlag == 0 && current.Objective != null && current.Objective == "Follow the green markers in the alien colony")
+		vars.colonyFlag = 1;
+	//disable colonyFlag once loading starts
+	if(current.PreLoading == 1 && vars.colonyFlag == 1)
+		vars.colonyFlag = 2;
+	
+	// print(vars.colonyFlag.ToString());
 }
 
 start
@@ -129,6 +144,7 @@ isLoading
 {
 	return ((current.PreLoading == 1) ||
 			(current.LoadingScreen == 981668864) ||
+			vars.colonyFlag == 1 ||
 			((current.LevelLoaded != 1) &&
 			!(current.AdvanceIntro >= 0 && current.AdvanceIntro < 7 && current.IntroLoaded != 0) &&
 			(vars.canLoad == true) &&
